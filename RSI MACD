@@ -1,0 +1,63 @@
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import talib as ta
+
+# Download historical forex data
+def get_forex_data(pair='EURUSD=X', period='1y'):
+    data = yf.download(pair, period=period, interval='1d')
+    data.dropna(inplace=True)
+    return data
+
+# Add Moving Average (MA)
+def add_moving_average(data, window=50):
+    data['MA'] = data['Close'].rolling(window=window).mean()
+
+# Add MACD
+def add_macd(data):
+    data['MACD'], data['MACD_Signal'], _ = ta.MACD(data['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
+
+# Add RSI
+def add_rsi(data, period=14):
+    data['RSI'] = ta.RSI(data['Close'], timeperiod=period)
+
+# Buy and Sell signals based on RSI and MACD
+def buy_sell_signals(data):
+    buy_signals = []
+    sell_signals = []
+    for i in range(len(data)):
+        if data['RSI'][i] < 30 and data['MACD'][i] > data['MACD_Signal'][i]:
+            buy_signals.append(data['Close'][i])
+            sell_signals.append(np.nan)
+        elif data['RSI'][i] > 70 and data['MACD'][i] < data['MACD_Signal'][i]:
+            sell_signals.append(data['Close'][i])
+            buy_signals.append(np.nan)
+        else:
+            buy_signals.append(np.nan)
+            sell_signals.append(np.nan)
+    data['Buy_Signal'] = buy_signals
+    data['Sell_Signal'] = sell_signals
+
+# Plot the data with signals
+def plot_data(data):
+    plt.figure(figsize=(14,8))
+    plt.plot(data['Close'], label='Close Price', alpha=0.5)
+    plt.plot(data['MA'], label='Moving Average', alpha=0.5)
+    plt.scatter(data.index, data['Buy_Signal'], label='Buy Signal', marker='^', color='green', lw=3)
+    plt.scatter(data.index, data['Sell_Signal'], label='Sell Signal', marker='v', color='red', lw=3)
+    plt.title('Forex Buy/Sell Signals')
+    plt.legend()
+    plt.show()
+
+# Main function to run the analysis
+def forex_analysis():
+    forex_data = get_forex_data()
+    add_moving_average(forex_data)
+    add_macd(forex_data)
+    add_rsi(forex_data)
+    buy_sell_signals(forex_data)
+    plot_data(forex_data)
+
+# Execute the analysis
+forex_analysis()
