@@ -1,0 +1,32 @@
+<BinaryBot>
+    <Constructor>
+        <Stake>5</Stake>
+        <MartingaleMaxSteps>3</MartingaleMaxSteps>
+    </Constructor>
+    <Methods>
+        <Method name="predict">
+            <Description>Returns a prediction for the trade.</Description>
+            <Returns>rise or fall</Returns>
+        </Method>
+        <Method name="execute_trade">
+            <Description>Executes a trade with the given prediction and stake.</Description>
+            <Parameters>
+                <Parameter name="prediction" type="string">The trade prediction.</Parameter>
+                <Parameter name="stake" type="int">The stake amount.</Parameter>
+            </Parameters>
+        </Method>
+        <Method name="run">
+            <Description>Runs the trading strategy.</Description>
+            <Behavior>
+                <Step>Make a prediction</Step>
+                <Step>Execute trade with the current stake</Step>
+                <Step>Adjust stake based on the result</Step>
+                <Step>Repeat for martingale_max_steps</Step>
+            </Behavior>
+        </Method>
+        <Method name="get_trade_result">
+            <Description>Returns the result of the trade.</Description>
+            <Returns>win or loss</Returns>
+        </Method>
+    </Methods>
+</BinaryBot>
