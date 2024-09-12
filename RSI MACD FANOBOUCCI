@@ -1,0 +1,56 @@
+<strategy>
+  <description>Basic Rise/Fall Bot with RSI, MACD, and Constant Recovery Strategy</description>
+
+  <!-- Define Parameters -->
+  <parameters>
+    <parameter name="initial_stake" type="number" value="0.35"/> <!-- Initial stake for the bot -->
+    <parameter name="duration_ticks" type="number" value="1"/> <!-- Trade duration in ticks -->
+  </parameters>
+
+  <!-- Define Trade Options -->
+  <trade_options>
+    <trade_type>Rise/Fall</trade_type> <!-- Trading Up/Down with rise/fall conditions -->
+    <contract_type>Both</contract_type> <!-- Applies for both 'Rise' and 'Fall' contracts -->
+    <duration>Ticks</duration>
+    <stake>{initial_stake}</stake> <!-- Setting the initial stake -->
+  </trade_options>
+
+  <!-- Define Indicators -->
+  <indicators>
+    <!-- Relative Strength Index (RSI) -->
+    <indicator name="rsi" type="RSI" period="14">
+      <overbought level="70" action="sell"/>
+      <oversold level="30" action="buy"/>
+    </indicator>
+
+    <!-- Moving Average Convergence Divergence (MACD) -->
+    <indicator name="macd" short_period="12" long_period="26" signal_period="9">
+      <bullish_crossover action="buy"/>
+      <bearish_crossover action="sell"/>
+    </indicator>
+
+    <!-- Fibonacci Retracement -->
+    <indicator name="fibonacci" levels="0.382, 0.5, 0.618">
+      <level_reached action="check_rsi_macd"/>
+    </indicator>
+  </indicators>
+
+  <!-- Define Purchase and Sell Conditions -->
+  <conditions>
+    <!-- Purchase Condition (Rise) -->
+    <condition name="purchase_rise" type="RSI" action="buy" trigger="rsi_below_30"/>
+
+    <!-- Sell Condition -->
+    <condition name="sell_fall" type="RSI" action="sell" trigger="rsi_above_70"/>
+  </conditions>
+
+  <!-- Constant Recovery Logic -->
+  <recovery_strategy>
+    <if condition="loss">
+      <action type="reset_stake" value="{initial_stake}"/>
+    </if>
+    <if condition="win">
+      <action type="continue_trade"/>
+    </if>
+  </recovery_strategy>
+</strategy>
